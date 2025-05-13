@@ -2,10 +2,15 @@ package router
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/movie-app/docs"
 	"github.com/movie-app/internal/config"
+	"github.com/movie-app/internal/handler"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/fx"
 )
 
@@ -29,3 +34,34 @@ func RegisterHooks(lc fx.Lifecycle, router *gin.Engine, cfg *config.Config) {
 		},
 	})
 }
+
+// NewRouter -.
+// Swagger spec:
+// @title       Movie APIs
+// @description This is a movie CRUD APIs
+// @version     2.0
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+func SetupRoutes(
+	router *gin.Engine,
+	actorHandler *handler.ActorHandler,
+) {
+
+	// Swagger
+	url := ginSwagger.URL("swagger/doc.json")
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+
+	router.GET("/healthz", func(c *gin.Context) { c.Status(http.StatusOK) })
+
+	// Prometheus metrics
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
+	actorHandler.RegisterRoutes(router)
+}
+
+var Module = fx.Options(
+	fx.Provide(NewRouter),
+	fx.Invoke(RegisterHooks),
+	fx.Invoke(SetupRoutes),
+)
