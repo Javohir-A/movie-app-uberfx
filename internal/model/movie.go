@@ -17,3 +17,23 @@ type MovieList struct {
 	Movies []Movie `json:"movies"`
 	Count  int     `json:"count"`
 }
+
+type CreateMovieRequest struct {
+	Title    string `json:"title" binding:"required"`
+	Director string `json:"director" binding:"required"`
+	Year     int    `json:"year" binding:"required"`
+	Plot     string `json:"plot" binding:"required"`
+	Casts    []struct {
+		Id int `json:"id" binding:"required"`
+	} `json:"casts" binding:"required,dive,required"`
+}
+
+type UpdateMovieRequest struct {
+	Title    string `json:"title" binding:"required"`
+	Director string `json:"director" binding:"required"`
+	Year     int    `json:"year" binding:"required"`
+	Plot     string `json:"plot" binding:"required"`
+	Casts    []struct {
+		Id int `json:"id" binding:"required"`
+	} `json:"casts" binding:"required,dive,required"`
+}

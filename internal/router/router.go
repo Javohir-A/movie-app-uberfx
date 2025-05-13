@@ -45,6 +45,7 @@ func RegisterHooks(lc fx.Lifecycle, router *gin.Engine, cfg *config.Config) {
 // @name Authorization
 func SetupRoutes(
 	router *gin.Engine,
+	movieHandler *handler.MovieHandler,
 	actorHandler *handler.ActorHandler,
 ) {
 
@@ -57,6 +58,7 @@ func SetupRoutes(
 	// Prometheus metrics
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
+	movieHandler.RegisterRoutes(router)
 	actorHandler.RegisterRoutes(router)
 }
 
