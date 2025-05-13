@@ -20,7 +20,7 @@ migrate_down:
 
 run-local:
 	go run cmd/movie-app/main.go
-IMAGE_NAME = javohirgo/movie_app
+IMAGE_NAME = javohirgo/movie-app
 TAG = v1.0.0
 
 build-image:
