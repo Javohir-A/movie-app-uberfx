@@ -19,3 +19,8 @@ type ActorList struct {
 type ActorID struct {
 	ID uint `json:"id"`
 }
+
+type MovieActor struct {
+	MovieID int `gorm:"column:movie_id"`
+	ActorID int `gorm:"column:actor_id"`
+}
