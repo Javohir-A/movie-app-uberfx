@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -24,3 +25,7 @@ func NewGormDatabase(cfg *config.Config) (*gorm.DB, error) {
 
 	return db, nil
 }
+
+var Module = fx.Option(
+	fx.Provide(NewGormDatabase),
+)

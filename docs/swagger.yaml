@@ -1,0 +1,438 @@
+definitions:
+  model.Actor:
+    properties:
+      created_at:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.ActorList:
+    properties:
+      actors:
+        items:
+          $ref: '#/definitions/model.Actor'
+        type: array
+      total:
+        type: integer
+    type: object
+  model.CreateMovieRequest:
+    properties:
+      casts:
+        items:
+          properties:
+            id:
+              type: integer
+          required:
+          - id
+          type: object
+        type: array
+      director:
+        type: string
+      plot:
+        type: string
+      title:
+        type: string
+      year:
+        type: integer
+    required:
+    - casts
+    - director
+    - plot
+    - title
+    - year
+    type: object
+  model.ErrorResponse:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  model.Movie:
+    properties:
+      cast:
+        items:
+          $ref: '#/definitions/model.Actor'
+        type: array
+      created_at:
+        type: string
+      director:
+        type: string
+      id:
+        type: integer
+      plot:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      year:
+        type: integer
+    type: object
+  model.MovieList:
+    properties:
+      count:
+        type: integer
+      movies:
+        items:
+          $ref: '#/definitions/model.Movie'
+        type: array
+    type: object
+  model.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  model.UpdateMovieRequest:
+    properties:
+      casts:
+        items:
+          properties:
+            id:
+              type: integer
+          required:
+          - id
+          type: object
+        type: array
+      director:
+        type: string
+      plot:
+        type: string
+      title:
+        type: string
+      year:
+        type: integer
+    required:
+    - casts
+    - director
+    - plot
+    - title
+    - year
+    type: object
+info:
+  contact: {}
+  description: This is a movie CRUD APIs
+  title: Movie APIs
+  version: "2.0"
+paths:
+  /v1/actors:
+    get:
+      description: Retrieves a paginated list of actors
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ActorList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Get a list of actors
+      tags:
+      - actors
+    post:
+      consumes:
+      - application/json
+      description: Creates an actor and returns the created object
+      parameters:
+      - description: Actor data
+        in: body
+        name: actor
+        required: true
+        schema:
+          $ref: '#/definitions/model.Actor'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Actor'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Create a new actor
+      tags:
+      - actors
+  /v1/actors/{id}:
+    delete:
+      description: Deletes an actor by ID
+      parameters:
+      - description: Actor ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Delete an actor
+      tags:
+      - actors
+    get:
+      description: Retrieves an actor by its ID
+      parameters:
+      - description: Actor ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Actor'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Get actor by ID
+      tags:
+      - actors
+    put:
+      consumes:
+      - application/json
+      description: Updates actor information by ID
+      parameters:
+      - description: Actor ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Actor data
+        in: body
+        name: actor
+        required: true
+        schema:
+          $ref: '#/definitions/model.Actor'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Actor'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Update an actor
+      tags:
+      - actors
+  /v1/movies:
+    get:
+      description: Get a paginated list of movies with optional filters and ordering
+      parameters:
+      - description: Page number (default is 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default is 10)
+        in: query
+        name: limit
+        type: integer
+      - description: Search by movie title
+        in: query
+        name: title
+        type: string
+      - description: Search by director name
+        in: query
+        name: director
+        type: string
+      - description: Search by release year
+        in: query
+        name: year
+        type: string
+      - description: Field to order by (e.g. year)
+        in: query
+        name: order_by
+        type: string
+      - description: 'Sort direction: asc or desc (default asc)'
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.MovieList'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Get all movies
+      tags:
+      - movies
+    post:
+      consumes:
+      - application/json
+      description: Create a new movie with the given JSON payload
+      parameters:
+      - description: Movie data
+        in: body
+        name: movie
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMovieRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Movie'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Create a new movie
+      tags:
+      - movies
+  /v1/movies/{id}:
+    delete:
+      description: Delete a movie by its ID
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: {}
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Delete movie
+      tags:
+      - movies
+    get:
+      description: Fetch a single movie by its ID
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Movie'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Get movie by ID
+      tags:
+      - movies
+    put:
+      consumes:
+      - application/json
+      description: Update a movie by its ID
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated movie
+        in: body
+        name: movie
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMovieRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Movie'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Update movie
+      tags:
+      - movies
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
