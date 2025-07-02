@@ -1,38 +1,58 @@
+version: '3.8'
+
 services:
-  db:
-    image: postgres
-    container_name: movies
-    environment:
-      POSTGRES_DB: moviesdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+  camera-app:
+    image: javohirgo/smile-mini-pc-app:latest
+    container_name: camera-streaming-app
+    restart: unless-stopped
+
+    privileged: false
+    network_mode: host
+
     ports:
-      - "5430:5432"
+      - "8765:8765"
+
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - movies-network
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      # Keep only these safe volume mounts
+      - ./logs:/app/logs
+      - ./data:/app/data
+      # REMOVE these lines that cause permission issues:
+      # - ./videos:/app/videos  
+      # - ./temp_videos:/app/temp_videos
 
-  app:
-    image: javohirgo/movie-app:v1.0.0
-    ports:
-      - "8081:8081"
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - .env
-    networks:
-      - movies-network
+    environment:
+      - PYTHONPATH=/app
+      - HOST_MAC=${HOST_MAC}
+      - OPENCV_VIDEOIO_PRIORITY_MSMF=0
+      - CUDA_VISIBLE_DEVICES=""
+      - OPENCV_DNN_BACKEND=0
+      - MPLBACKEND=Agg
+      - LIBGL_ALWAYS_INDIRECT=1
 
-networks:
-  movies-network: 
-    external: true
+      # Application-specific
+      - ENABLE_WEBSOCKET=true
+      - WEBSOCKET_PORT=8765
+      - WEBSOCKET_QUALITY=100
+      - WEBSOCKET_MAX_FPS=30
+      - VIDEO_GENERATION_ENABLED=true
+      - VIDEO_TRIGGER_EMOTIONS=upset,smile,normal
+      - FFMPEG_ENABLED=true
+      - OPENCV_FFMPEG_CAPTURE_OPTIONS=protocol_whitelist;file,rtp,udp
 
-volumes:
-  postgres_data:
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
